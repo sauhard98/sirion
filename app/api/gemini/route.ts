@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
         }
 
         // For other files, call Gemini API
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
             return NextResponse.json({ success: false, error: "API key not configured" }, { status: 500 });
