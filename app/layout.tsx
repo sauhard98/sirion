@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ContractProvider } from '@/context/ContractContext'
 
 export const metadata: Metadata = {
   title: 'Sirion - AI-Powered Contract Management',
@@ -16,7 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        <ContractProvider>
+          {children}
+        </ContractProvider>
+      </body>
     </html>
   )
 }
