@@ -149,39 +149,49 @@ const MOCK_RESPONSE_2 = {
     },
     structure: [
         {
-            section: "1. DEFINITIONS",
+            section: "Agreement Overview",
             content:
-                "Defines key terms 'Deliverables' (architecture, code, documentation) and 'Confidential Information' (non-public technical or business information).",
+                "This Master Services Agreement establishes the terms under which Sirion Technologies Inc. will provide software development and consulting services to Acme Corporation for a period of 12 months.",
         },
         {
-            section: "2. SCOPE OF SERVICES",
+            section: "Scope of Services",
             content:
-                "Establishes that Provider will perform services per the Statement of Work. Fixes the total engagement value at $150,000 USD.",
+                "Services include custom software development, system integration, technical consulting, and ongoing maintenance. Deliverables are defined in three phases with specific acceptance criteria for each milestone.",
         },
         {
-            section: "3. TERM AND TERMINATION",
+            section: "Payment Terms",
             content:
-                "Sets a 12-month term starting on the Effective Date. Allows termination for cause with 30 days cure, or immediate termination for confidentiality/data security breaches.",
+                "Total contract value of $500,000 payable in installments: 30% upon signing, 40% upon Phase 1 completion, and 30% upon final delivery. Payments due within 15 days of invoice. Late payments subject to 1.5% monthly interest.",
         },
         {
-            section: "4. PAYMENT TERMS",
+            section: "Deliverables and Milestones",
             content:
-                "Requires invoice payment within 30 days of receipt. Stipulates a 1.5% monthly interest rate for late payments.",
+                "Phase 1 delivery within 45 days includes requirements documentation and system architecture. Phase 2 within 90 days includes core functionality implementation. Final deployment within 180 days with full documentation and training.",
         },
         {
-            section: "5. TIMELINE AND DELIVERABLES (The 'Schedule')",
+            section: "Intellectual Property",
             content:
-                "Outlines the delivery schedule for Phases 1 through 3 and post-launch support. Specifies acceptance criteria and penalties for delays.",
+                "All work product and deliverables become the exclusive property of Acme Corporation upon final payment. Sirion retains rights to pre-existing tools and methodologies used in the development process.",
         },
         {
-            section: "6. WARRANTY AND LIABILITY",
+            section: "Confidentiality",
             content:
-                "Provides a warranty that software will perform according to specifications for 90 days following acceptance.",
+                "Both parties agree to maintain confidentiality of proprietary information for a period of 3 years following contract termination. Standard exceptions apply for publicly available information.",
         },
         {
-            section: "7. INDEMNIFICATION",
+            section: "Termination Clauses",
             content:
-                "Obligates Provider to indemnify Client against third-party intellectual property infringement claims.",
+                "Either party may terminate with 30 days written notice. Immediate termination allowed for material breach. Upon termination, client must compensate for all completed work and work-in-progress.",
+        },
+        {
+            section: "Liability and Indemnification",
+            content:
+                "Liability capped at total contract value. Each party indemnifies the other against third-party claims arising from their negligence or breach. Professional liability insurance of $1M required.",
+        },
+        {
+            section: "Renewal Terms",
+            content:
+                "Contract may be renewed for additional 12-month terms upon mutual written agreement. Renewal terms subject to renegotiation but not to exceed 7% annual increase based on CPI adjustments.",
         },
     ],
     timelineEvents: [
