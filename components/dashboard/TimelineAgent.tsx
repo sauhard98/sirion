@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Calendar, AlertTriangle, AlertCircle, Clock, DollarSign } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, AlertTriangle, AlertCircle, Clock, X, Info } from 'lucide-react';
 import { TimelineEvent } from '@/types/contract';
 import { format, differenceInDays, parseISO } from 'date-fns';
 
@@ -10,6 +11,8 @@ interface TimelineAgentProps {
 }
 
 export function TimelineAgent({ events }: TimelineAgentProps) {
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
+
   const sortedEvents = [...events].sort((a, b) =>
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -26,6 +29,16 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
       case 'Medium': return 'bg-amber-500';
       case 'Low': return 'bg-green-500';
       default: return 'bg-neutral-500';
+    }
+  };
+
+  const getRiskBorderColor = (risk: string) => {
+    switch (risk) {
+      case 'Critical': return 'ring-red-500';
+      case 'High': return 'ring-orange-500';
+      case 'Medium': return 'ring-amber-500';
+      case 'Low': return 'ring-green-500';
+      default: return 'ring-neutral-500';
     }
   };
 
@@ -49,11 +62,144 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
 
   return (
     <div className="space-y-8">
+      {/* Event Detail Modal */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setSelectedEvent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-gradient-to-br from-neutral-900 to-neutral-800 border border-neutral-700 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gradient-to-br from-neutral-900 to-neutral-800 border-b border-neutral-700 p-6 flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-10 h-10 ${getRiskColor(selectedEvent.risk)} rounded-lg flex items-center justify-center`}>
+                      <Calendar className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">{selectedEvent.title}</h3>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getRiskBadgeStyle(selectedEvent.risk)}`}>
+                      {selectedEvent.risk} Risk
+                    </span>
+                    <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-medium">
+                      {selectedEvent.type}
+                    </span>
+                    {getAlertLevel(selectedEvent.daysUntil) && (
+                      <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getAlertLevel(selectedEvent.daysUntil)?.class} bg-current bg-opacity-10`}>
+                        {getAlertLevel(selectedEvent.daysUntil)?.icon}
+                        {getAlertLevel(selectedEvent.daysUntil)?.text}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-neutral-400" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                {/* Date & Countdown */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-neutral-800/50 rounded-xl p-4">
+                    <p className="text-xs text-neutral-500 mb-1">Event Date</p>
+                    <p className="text-xl font-bold text-white">{format(parseISO(selectedEvent.date), 'MMMM dd, yyyy')}</p>
+                    <p className="text-sm text-neutral-400 mt-1">{format(parseISO(selectedEvent.date), 'EEEE')}</p>
+                  </div>
+                  <div className="bg-neutral-800/50 rounded-xl p-4">
+                    <p className="text-xs text-neutral-500 mb-1">Time Remaining</p>
+                    <p className={`text-xl font-bold ${
+                      selectedEvent.daysUntil !== undefined && selectedEvent.daysUntil < 30 ? 'text-orange-400' : 'text-white'
+                    }`}>
+                      {selectedEvent.daysUntil !== undefined ? (
+                        selectedEvent.daysUntil < 0
+                          ? `${Math.abs(selectedEvent.daysUntil)} days overdue`
+                          : `${selectedEvent.daysUntil} days`
+                      ) : 'N/A'}
+                    </p>
+                    <p className="text-sm text-neutral-400 mt-1">
+                      {selectedEvent.daysUntil !== undefined && selectedEvent.daysUntil >= 0 ? 'until deadline' : ''}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Repercussion Warning */}
+                <div className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-xl p-6">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <AlertTriangle className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-lg font-bold text-white mb-2">Risk Repercussion</h4>
+                      <p className="text-neutral-300 leading-relaxed">{selectedEvent.repercussion}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-4 bg-neutral-800/30 rounded-xl">
+                    <Info className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-white mb-1">Event Type</p>
+                      <p className="text-sm text-neutral-400">
+                        {selectedEvent.type === 'Deliverable' && 'Requires completion and delivery of specific work product or milestone'}
+                        {selectedEvent.type === 'Payment' && 'Payment obligation that must be fulfilled by the specified date'}
+                        {selectedEvent.type === 'Milestone' && 'Critical project milestone or checkpoint that must be achieved'}
+                        {selectedEvent.type === 'Renewal' && 'Contract renewal decision point requiring action to prevent auto-renewal'}
+                        {selectedEvent.type === 'Termination' && 'Contract termination or expiry date requiring final reconciliation'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-4 bg-neutral-800/30 rounded-xl">
+                    <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-white mb-1">Risk Level Explanation</p>
+                      <p className="text-sm text-neutral-400">
+                        {selectedEvent.risk === 'Critical' && 'Highest priority - immediate action required. Failure will result in severe financial or operational consequences.'}
+                        {selectedEvent.risk === 'High' && 'High priority - urgent attention needed. Missing this deadline will trigger significant penalties.'}
+                        {selectedEvent.risk === 'Medium' && 'Moderate priority - plan accordingly. Some penalties may apply if missed.'}
+                        {selectedEvent.risk === 'Low' && 'Standard priority - monitor as part of regular contract management.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="border-t border-neutral-700 p-6 bg-neutral-900/50">
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold transition-colors"
+                >
+                  Close Details
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-white mb-2">Timeline Agent</h2>
-          <p className="text-neutral-400">AI-generated Gantt chart with risk analysis</p>
+          <p className="text-neutral-400">AI-generated Gantt chart with risk analysis · Click milestones for details</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
           <Calendar className="w-5 h-5 text-indigo-400" />
@@ -81,6 +227,7 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
               <div className="w-3 h-3 bg-red-500 rounded-full" />
               <span>Critical Risk</span>
             </div>
+            <div className="ml-auto text-xs text-neutral-600 italic">Click milestones to view details</div>
           </div>
 
           {sortedEvents.map((event, index) => {
@@ -113,16 +260,26 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
                   </div>
 
                   {/* Timeline bar */}
-                  <div className="flex-1 relative h-8 bg-neutral-800 rounded-lg overflow-hidden">
-                    <motion.div
+                  <div className="flex-1 relative h-8 bg-neutral-800 rounded-lg overflow-visible">
+                    <motion.button
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
+                      whileHover={{ scale: 1.3 }}
+                      whileTap={{ scale: 0.9 }}
                       transition={{ delay: index * 0.1 + 0.2 }}
                       style={{ left: `${position}%` }}
-                      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+                      onClick={() => setSelectedEvent(event)}
+                      className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer group z-10`}
                     >
-                      <div className={`w-6 h-6 ${getRiskColor(event.risk)} rounded-full border-2 border-neutral-900 shadow-lg`} />
-                    </motion.div>
+                      <div className={`w-7 h-7 ${getRiskColor(event.risk)} rounded-full border-2 border-neutral-900 shadow-lg transition-all ring-2 ring-transparent hover:ring-4 ${getRiskBorderColor(event.risk)} hover:ring-opacity-50`} />
+                      {/* Tooltip on hover */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <div className="bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-xl">
+                          <p className="text-white font-semibold">{event.title}</p>
+                          <p className="text-neutral-400">{format(parseISO(event.date), 'MMM dd, yyyy')}</p>
+                        </div>
+                      </div>
+                    </motion.button>
                   </div>
 
                   {/* Days until */}
@@ -149,7 +306,7 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
             <AlertTriangle className="w-5 h-5 text-orange-500" />
             Risk Repercussions
           </h3>
-          <p className="text-sm text-neutral-400 mt-1">Penalties and consequences for each milestone</p>
+          <p className="text-sm text-neutral-400 mt-1">Penalties and consequences for each milestone · Click rows for details</p>
         </div>
 
         <div className="overflow-x-auto">
@@ -172,7 +329,8 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: index * 0.05 }}
-                    className="hover:bg-neutral-800/30 transition-colors"
+                    onClick={() => setSelectedEvent(event)}
+                    className="hover:bg-neutral-800/50 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
