@@ -260,7 +260,7 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
                                             <span
                                                 className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
                                                     getAlertLevel(selectedEvent.daysUntil)?.class
-                                                } bg-current bg-opacity-10`}>
+                                                } bg-opacity-10`}>
                                                 {getAlertLevel(selectedEvent.daysUntil)?.icon}
                                                 {getAlertLevel(selectedEvent.daysUntil)?.text}
                                             </span>
@@ -714,7 +714,7 @@ export function TimelineAgent({ events }: TimelineAgentProps) {
                                                 <span className="font-medium text-white">{event.title}</span>
                                                 {alert && (
                                                     <span
-                                                        className={`px-2 py-1 rounded text-xs font-semibold ${alert.class} bg-current bg-opacity-10`}>
+                                                        className={`px-2 py-1 rounded text-xs text-white font-semibold ${alert.class} bg-opacity-10`}>
                                                         {alert.text}
                                                     </span>
                                                 )}

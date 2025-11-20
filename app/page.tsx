@@ -284,15 +284,15 @@ export default function Homepage() {
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="flex items-center gap-2">
                             <Image
-                                src="/sirion-logo.png"
+                                src="/sirion-logo.svg"
                                 alt="Sirion Logo"
-                                width={32}
-                                height={32}
+                                width={93}
+                                height={20}
                                 className="rounded-lg"
                             />
-                            <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                            {/* <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                                 Sirion
-                            </span>
+                            </span> */}
                         </div>
                         <p className="text-neutral-500">
                             © 2025 Sirion. All rights reserved. | Enterprise Contract Intelligence

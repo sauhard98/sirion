@@ -51,14 +51,14 @@ export default function DashboardPage() {
                     <div className="container mx-auto px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <Image
-                                src="/sirion-logo.png"
+                                src="/sirion-logo.svg"
                                 alt="Sirion Logo"
-                                width={40}
-                                height={40}
+                                width={93}
+                                height={20}
                                 className="rounded-lg"
                             />
                             <div>
-                                <h1 className="text-xl font-bold text-white">Sirion Command Center</h1>
+                                <h1 className="text-xl font-bold text-white">Command Center</h1>
                                 <p className="text-xs text-neutral-500">Contract Intelligence Platform</p>
                             </div>
                         </div>
@@ -139,15 +139,14 @@ export default function DashboardPage() {
                     <div className="p-6 border-b border-neutral-800">
                         <div className="flex items-center gap-3">
                             <Image
-                                src="/sirion-logo.png"
+                                src="/sirion-logo.svg"
                                 alt="Sirion Logo"
-                                width={48}
-                                height={48}
+                                width={93}
+                                height={20}
                                 className="rounded-xl"
                             />
                             <div>
-                                <h1 className="text-xl font-bold text-white">Sirion</h1>
-                                <p className="text-xs text-neutral-500">Command Center</p>
+                                <p className="text-xs text-white">Command Center</p>
                             </div>
                         </div>
                     </div>
