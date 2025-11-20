@@ -64,171 +64,29 @@ export async function processContractWithGemini(
     const today = new Date();
 
     try {
-        // Check if API key is configured
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-        const useRealAPI = apiKey && apiKey !== "your_api_key_here" && apiKey.trim() !== "";
-
-        if (!useRealAPI) {
-            console.warn(
-                "Gemini API key not configured. Using mock data. Add NEXT_PUBLIC_GEMINI_API_KEY to .env.local to enable real API calls."
-            );
-        }
-
         // Progress: Extracting text
         if (onProgress) {
             onProgress(processingStages[0]);
             onProgress(processingStages[1]);
         }
 
-        let analysisData;
+        // Extract PDF text
+        const pdfText = await extractTextFromPDF(file);
 
-        if (useRealAPI) {
-            // Extract PDF text
-            const pdfText = await extractTextFromPDF(file);
+        // Progress: Analyzing with AI
+        if (onProgress) {
+            onProgress(processingStages[2]);
+        }
 
-            // Progress: Analyzing with AI
+        // Call Gemini API via backend
+        const analysisData = await callGeminiAPI(pdfText, file.name);
+
+        // Progress through remaining stages
+        for (let i = 3; i < processingStages.length; i++) {
             if (onProgress) {
-                onProgress(processingStages[2]);
+                onProgress(processingStages[i]);
             }
-
-            // Call Gemini API
-            analysisData = await callGeminiAPI(pdfText, file.name);
-
-            // Progress through remaining stages
-            for (let i = 3; i < processingStages.length; i++) {
-                if (onProgress) {
-                    onProgress(processingStages[i]);
-                }
-                await new Promise((resolve) => setTimeout(resolve, 200));
-            }
-        } else {
-            // Use mock data when API key is not configured
-            // Simulate processing stages
-            for (const stage of processingStages) {
-                if (onProgress) {
-                    onProgress(stage);
-                }
-                await new Promise((resolve) => setTimeout(resolve, 400));
-            }
-
-            // Generate mock analysis data
-            const addDays = (days: number) => {
-                const date = new Date(today);
-                date.setDate(date.getDate() + days);
-                return date.toISOString().split("T")[0];
-            };
-
-            analysisData = {
-                metadata: {
-                    value: "$" + (Math.floor(Math.random() * 900000) + 100000).toLocaleString(),
-                    effectiveDate: today.toISOString().split("T")[0],
-                    expiryDate: addDays(365),
-                    parties: ["Sirion Inc.", extractCompanyName(file.name)],
-                },
-                structure: [
-                    {
-                        section: "Metadata",
-                        content: `Contract Type: Master Services Agreement\nEffective Date: ${
-                            today.toISOString().split("T")[0]
-                        }\nGoverning Law: Delaware\nJurisdiction: United States`,
-                    },
-                    {
-                        section: "Definitions",
-                        content: `"Services" means the professional consulting services described in Exhibit A.\n"Deliverables" means all work products, reports, and materials to be delivered by Service Provider.\n"Confidential Information" means all non-public information disclosed by either party.`,
-                    },
-                    {
-                        section: "Scope of Work",
-                        content: `Service Provider shall deliver Phase 1 implementation within 60 days of contract execution, Phase 2 within 120 days, and final deployment within 180 days. All deliverables must meet acceptance criteria defined in Exhibit B.`,
-                    },
-                    {
-                        section: "Payment Terms",
-                        content: `Client shall pay 30% upon contract execution, 40% upon Phase 1 completion, and 30% upon final delivery. Late payments incur 2% monthly interest. Payment due within 15 days of invoice.`,
-                    },
-                    {
-                        section: "Termination Clauses",
-                        content: `Either party may terminate with 30 days written notice. Immediate termination permitted for material breach. Upon termination, Client must pay for all completed work. Service Provider must deliver all work-in-progress materials within 5 business days.`,
-                    },
-                    {
-                        section: "Liability & Indemnification",
-                        content: `Service Provider liability capped at total contract value. Indemnification required for IP infringement claims. Both parties maintain insurance coverage of minimum $1M. Consequential damages excluded except for gross negligence.`,
-                    },
-                    {
-                        section: "Intellectual Property",
-                        content: `All deliverables become Client property upon final payment. Service Provider retains rights to pre-existing IP and methodologies. Client grants limited license for portfolio use with prior written consent.`,
-                    },
-                    {
-                        section: "Renewal Terms",
-                        content: `Contract auto-renews for successive 1-year terms unless either party provides 90 days notice. Renewal rate may increase by up to 5% annually based on CPI adjustments.`,
-                    },
-                ],
-                timelineEvents: [
-                    {
-                        title: "Contract Execution & Initial Payment Due",
-                        date: addDays(0),
-                        type: "Payment",
-                        risk: "Low",
-                        repercussion:
-                            "30% of contract value ($" +
-                            Math.floor((Math.random() * 900000 + 100000) * 0.3).toLocaleString() +
-                            ") due immediately",
-                    },
-                    {
-                        title: "Phase 1 Delivery Deadline",
-                        date: addDays(45),
-                        type: "Deliverable",
-                        risk: "High",
-                        repercussion:
-                            "10% penalty on total contract value for each week of delay. Client may terminate for cause if delayed beyond 2 weeks.",
-                    },
-                    {
-                        title: "Phase 1 Payment Milestone",
-                        date: addDays(60),
-                        type: "Payment",
-                        risk: "Medium",
-                        repercussion: "40% payment due within 15 days. Late payment incurs 2% monthly interest.",
-                    },
-                    {
-                        title: "Phase 2 Delivery Deadline",
-                        date: addDays(105),
-                        type: "Deliverable",
-                        risk: "High",
-                        repercussion:
-                            "Material breach trigger. Client has right to terminate and withhold final payment if not delivered.",
-                    },
-                    {
-                        title: "Final Deployment & Go-Live",
-                        date: addDays(165),
-                        type: "Milestone",
-                        risk: "Critical",
-                        repercussion:
-                            "Immediate termination of license if not completed. All payments become due immediately. Liquidated damages of $50,000 per week of delay.",
-                    },
-                    {
-                        title: "Final Payment Due",
-                        date: addDays(180),
-                        type: "Payment",
-                        risk: "Medium",
-                        repercussion:
-                            "30% final payment due. Withholding payment beyond 30 days triggers arbitration clause.",
-                    },
-                    {
-                        title: "Renewal Notice Deadline",
-                        date: addDays(275),
-                        type: "Renewal",
-                        risk: "High",
-                        repercussion:
-                            "Auto-renewal at +5% rate if no notice provided. 90-day notice required to prevent automatic renewal.",
-                    },
-                    {
-                        title: "Contract Expiry & Renewal",
-                        date: addDays(365),
-                        type: "Termination",
-                        risk: "Critical",
-                        repercussion:
-                            "Contract terminates unless renewed. All access to systems must be revoked. Final reconciliation of all outstanding items required.",
-                    },
-                ],
-            };
+            await new Promise((resolve) => setTimeout(resolve, 200));
         }
 
         // Build the final contract object
