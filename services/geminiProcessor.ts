@@ -23,34 +23,34 @@ async function extractTextFromPDF(file: File): Promise<string> {
 async function callGeminiAPI(pdfText: string, filename: string): Promise<any> {
     try {
         // Call the backend API route
-        const response = await fetch('/api/gemini', {
-            method: 'POST',
+        const response = await fetch("/api/gemini", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
                 fileContent: pdfText,
-                fileName: filename
-            })
+                fileName: filename,
+            }),
         });
 
         if (!response.ok) {
             if (response.status === 408) {
-                throw new Error('TIMEOUT');
+                throw new Error("TIMEOUT");
             }
             const errorData = await response.json();
-            throw new Error(errorData.error || 'API request failed');
+            throw new Error(errorData.error || "API request failed");
         }
 
         const data = await response.json();
-        
+
         if (!data.success) {
-            throw new Error(data.error || 'Analysis failed');
+            throw new Error(data.error || "Analysis failed");
         }
 
         return data.data;
     } catch (error: any) {
-        console.error('Error calling Gemini API:', error);
+        console.error("Error calling Gemini API:", error);
         throw error;
     }
 }
